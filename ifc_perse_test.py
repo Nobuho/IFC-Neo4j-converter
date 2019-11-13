@@ -1,8 +1,6 @@
 import ifcopenshell
 
-print("のぶほだよ")
-
-# ifc_file = ifcopenshell.open('tebuilding_original.ifc')
+ifc_file = ifcopenshell.open('tebuilding_original.ifc')
 
 # products = ifc_file.by_type('IfcProduct')
 
@@ -17,6 +15,23 @@ print("のぶほだよ")
 # wall = ifc_file.by_type('IfcWall')[0]
 # for definition in wall.IsDefinedBy:
 #     property_set = definition.RelatingPropertyDefinition
-#     print(property_set.Name)  # Might return Pset_WallCommon
+#     for property in property_set.HasProperties:
+#         if property.is_a('IfcPropertySingleValue'):
+#             print(property.Name)
+#             print(property.NominalValue.wrappedValue)
 
-#     http://terminal integrated shellargs windows
+
+def print_element_quantities(element_quantity):
+    for quantity in element_quantity.Quantities:
+        print(quantity.Name)
+        if quantity.is_a('IfcQuantityLength'):
+            print(quantity.lengthValue)
+
+
+wall = ifc_file.by_type('IfcWall')[0]
+for definition in wall.IsDefinedBy:
+    related_data = definition.RelatingPropertyDefinition
+    if related_data.is_a('IfcPropertySet'):
+        pass
+    elif related_data.is_a('IfcElementQuantity'):
+        print_element_quantities(related_data)
