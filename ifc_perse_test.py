@@ -26,6 +26,7 @@ def print_element_quantities(element_quantity):
         print(quantity.Name)
         if quantity.is_a('IfcQuantityLength'):
             print(quantity.lengthValue)
+            
 
 
 wall = ifc_file.by_type('IfcWall')[0]
