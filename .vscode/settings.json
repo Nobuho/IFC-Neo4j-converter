@@ -1,3 +1,15 @@
 {
-    "python.pythonPath": "py35env\\Scripts\\python.exe"
-}
+    "editor.formatOnType": true,
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": false,
+    "window.zoomLevel": 0,
+    "python.jediEnabled": false,
+    // "azureFunctions.showProjectWarning": false,
+    // "javascript.suggest.completeFunctionCalls": true,
+    "python.terminal.activateEnvironment": false,
+    // "python.pythonPath": "python",
+    "python.venvFolders": [
+        ".pyenv"
+    ],
+    "python.pythonPath": ".pyenv\\Scripts\\python.exe"
+  }
