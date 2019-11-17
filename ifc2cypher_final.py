@@ -22,6 +22,8 @@ class IfcTypeDict(dict):
 
 typeDict = IfcTypeDict()
 
+print(typeDict)
+
 assert typeDict["IfcWall"] == (
     'GlobalId',
     'OwnerHistory',
@@ -42,6 +44,7 @@ ourLabel = 'test'
 f = ifcopenshell.open("tebuilding_original.ifc")
 
 for el in f:
+    print("\n", el.get_info())
     tid = el.id()
     cls = el.is_a()
     pairs = []
@@ -52,13 +55,21 @@ for el in f:
         # we actually can't catch this, but try anyway
         pass
     for key in keys:
+        # print("\n",key)
         val = el[key]
+        val_type = type(val)
         if any(hasattr(val, "is_a") and val.is_a(thisTyp)
                for thisTyp in ["IfcBoolean", "IfcLabel", "IfcText", "IfcReal"]):
             val = val.wrappedValue
-        if type(val) not in (str, bool, float):
+            # print("patern_A", val)
+            # print(type(val))
+        if type(val) not in (str, bool, float, int):
+            # print("patern_B", val)
+            # print(type(val))
             continue
         pairs.append((key, val))
+    
+    print("\n", pairs)
 
     nodes.append((tid, cls, pairs))
     for i in range(len(el)):
@@ -69,8 +80,10 @@ for el in f:
                 print("ID", tid, e, file=sys.stderr)
             continue
         if isinstance(el[i], ifcopenshell.entity_instance):
+            print("インスタンスチェック", el[i])
             if el[i].id() != 0:
                 edges.append((tid, el[i].id(), typeDict[cls][i]))
+                print("タイプの確認", typeDict[cls][i])
                 continue
             else:
                 print(

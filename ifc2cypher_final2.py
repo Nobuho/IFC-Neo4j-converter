@@ -59,7 +59,7 @@ for el in f:
         if any(hasattr(val, "is_a") and val.is_a(thisTyp)
                for thisTyp in ["IfcBoolean", "IfcLabel", "IfcText", "IfcReal"]):
             val = val.wrappedValue
-        if type(val) not in (str, bool, float):
+        if type(val) not in (str, bool, float, int):
             continue
         pairs.append((key, val))
 
@@ -97,17 +97,6 @@ if len(nodes) == 0:
     sys.exit(1)
 
 indexes = set(["nid", "cls"])
-
-# nobuho added
-
-NodesCreates = []
-IndexCreates = []
-EdgesMatches = []
-EdgesCreates = []
-
-NodesCreates_txt = []
-
-####################
 
 for chunk in chunks2(nodes, 100):
     one_node = None
