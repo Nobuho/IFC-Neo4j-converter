@@ -1,0 +1,134 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; AHTK使い方
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; ; コメント　行の途中だと正しくコメントされない場合がある
+; + Shift
+; ^ Control
+; ! Alt
+; # Windowsキー
+; 上下左右  {Up}{Down}{Left}{Right}
+; {をSendする    {{}
+
+#Hotstring *
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 日付入力
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; 明日
+::d;;::
+  inputday := a_now
+  FormatTime, inputday, %inputday%, yyMMdd
+  SendInput %inputday%_
+return
+
+; 2日後
+::dd;;::
+  inputday := a_now
+  inputday += 1, days
+  FormatTime, inputday, %inputday%, yyMMdd
+  SendInput %inputday%_
+return
+
+; 3日後
+::ddd;;::
+  inputday := a_now
+  inputday += 2, days
+  FormatTime, inputday, %inputday%, yyMMdd
+  SendInput %inputday%_
+return
+
+; 1週間後
+::we;;::
+  inputday := a_now
+  inputday += 7, days
+  FormatTime, inputday, %inputday%, yyMMdd
+  SendInput %inputday%_
+return
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 定型文登録
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+::makeenv35;;::
+  SendInput py -3.5 -m venv .pyenv
+return
+
+::makeenv36;;::
+  SendInput py -3.6 -m venv .pyenv
+return
+
+::makeenv37;;::
+  SendInput py -3.7 -m venv .pyenv
+return
+
+::runenv;;::
+  SendInput .pyenv\Scripts\activate
+return
+
+::pip;;::
+  SendInput python -m pip install --upgrade pip
+return
+
+::lint;;::
+  SendInput pip install flake8 autopep8
+return
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; フォルダパスジャンプ
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+!+s::
+Send,^c
+Sleep 300
+ClipWait,1
+StringReplace, clipboard, clipboard,",, All
+Send,#r
+Sleep 300
+Send,^v
+Sleep 100
+Send,{enter}
+return
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Google検索
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+!+g::
+Send,^c
+Sleep 500
+ClipWait,1
+Run, https://www.google.co.jp/search?hl=ja&lr=lang_ja&q=%Clipboard%
+return
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Google翻訳
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+!+t::
+Send,^c
+Sleep 500
+ClipWait,1
+Run, https://translate.google.co.jp/?hl=ja&tab=TT#view=home&op=translate&sl=auto&tl=en&text=%Clipboard%
+return
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 画面移動
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+^+Tab::
+Send,#+{Right}
+Sleep 50
+Send,#{Up}
+return
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; アプリ一覧
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+XButton1::
+  Send,^!{tab}
+return

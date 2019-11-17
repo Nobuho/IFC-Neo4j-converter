@@ -1,12 +1,8 @@
-# import re
-import json
 import itertools
 import ifcopenshell
 import sys
-from py2neo import Graph, Node, Relationship
-
-graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
-graph.delete_all()
+from py2neo import Graph, Node
+import time
 
 
 def chunks2(iterable, size, filler=None):
@@ -23,6 +19,10 @@ class IfcTypeDict(dict):
             key).wrapped_data.get_attribute_names()
         return value
 
+
+start = time.time()  # Culculate time to process
+print("Start!")
+print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 
 typeDict = IfcTypeDict()
 
@@ -43,7 +43,7 @@ edges = []
 
 ourLabel = 'test'
 
-f = ifcopenshell.open("nmodel.ifc")
+f = ifcopenshell.open("tebuilding_original.ifc")
 
 for el in f:
     if el.is_a() == "IfcOwnerHistory":
@@ -95,6 +95,13 @@ if len(nodes) == 0:
 
 indexes = set(["nid", "cls"])
 
+print("List creat prosess done. Take for ", time.time() - start)
+print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
+
+# Initialize neo4j database
+graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
+graph.delete_all()
+
 for chunk in chunks2(nodes, 100):
     one_node = None
     idx = 0
@@ -110,7 +117,8 @@ for chunk in chunks2(nodes, 100):
 
         graph.create(one_node)
 
-print("Node creat prosess finished!")
+print("Node creat prosess done. Take for ", time.time() - start)
+print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 
 for (nId1, nId2, relType) in edges:
     graph.run(
@@ -118,4 +126,6 @@ for (nId1, nId2, relType) in edges:
             nId1,
             nId2,
             relType))
-            
+
+print("All done. Take for ", time.time() - start)
+print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
