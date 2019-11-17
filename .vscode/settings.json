@@ -11,5 +11,5 @@
     "python.venvFolders": [
         ".pyenv"
     ],
-    "python.pythonPath": "c:\\_Python\\191111_IFCandNeo4j\\.pyenv\\Scripts\\python.exe"
+    "python.pythonPath": ".pyenv\\Scripts\\python.exe"
   }

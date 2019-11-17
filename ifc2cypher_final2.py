@@ -8,6 +8,7 @@ from py2neo import Graph, Node, Relationship
 graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
 graph.delete_all()
 
+
 def chunks2(iterable, size, filler=None):
     it = itertools.chain(iterable, itertools.repeat(filler, size - 1))
     chunk = tuple(itertools.islice(it, size))
@@ -45,12 +46,14 @@ ourLabel = 'test'
 f = ifcopenshell.open("nmodel.ifc")
 
 for el in f:
+    if el.is_a() == "IfcOwnerHistory":
+        continue
     tid = el.id()
     cls = el.is_a()
     pairs = []
     keys = []
     try:
-        keys = [x for x in el.get_info() if x not in ["type", "id"]]
+        keys = [x for x in el.get_info() if x not in ["type", "id", "OwnerHistory"]]
     except RuntimeError:
         # we actually can't catch this, but try anyway
         pass
@@ -72,17 +75,11 @@ for el in f:
                 print("ID", tid, e, file=sys.stderr)
             continue
         if isinstance(el[i], ifcopenshell.entity_instance):
+            if el[i].is_a() == "IfcOwnerHistory":
+                continue
             if el[i].id() != 0:
                 edges.append((tid, el[i].id(), typeDict[cls][i]))
                 continue
-            # else:
-            #     print(
-            #         "attribute ",
-            #         typeDict[cls][i],
-            #         " of ",
-            #         str(tid),
-            #         " is zero",
-            #         file=sys.stderr)
         try:
             iter(el[i])
         except TypeError:
@@ -101,33 +98,24 @@ indexes = set(["nid", "cls"])
 for chunk in chunks2(nodes, 100):
     one_node = None
     idx = 0
-    # NodesCreates.append("CREATE ")
     for i in chunk:
         if i is None:
             continue
         nId, cls, pairs = i
-        if idx != 0:
-            NodesCreates.append(",")
         idx = idx + 1
-
         one_node = Node(cls, nid=nId)
-
         for k, v in pairs:
             one_node[k] = v
             indexes.add(k)
 
         graph.create(one_node)
 
-# for idxName in indexes:
-#     IndexCreates.append("CREATE INDEX on :" + ourLabel + "(" + idxName + ");")
+print("Node creat prosess finished!")
 
 for (nId1, nId2, relType) in edges:
-    # rel1 = graph.find(property_key="nid", property_value=nId1)
-    # rel2 = graph.find(property_key="nid", property_value=nId2)
     graph.run(
         "MATCH (a),(b) WHERE a.nid = {:d} AND b.nid = {:d} CREATE (a)-[r:{:s}]->(b)".format(
             nId1,
             nId2,
             relType))
-
-    # graph.create(Relationship(rel1, relType, rel2))
+            
