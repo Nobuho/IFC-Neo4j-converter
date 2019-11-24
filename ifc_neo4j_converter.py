@@ -1,8 +1,8 @@
-# import re
-import json
 import itertools
 import ifcopenshell
 import sys
+from py2neo import Graph, Node
+import time
 
 
 def chunks2(iterable, size, filler=None):
@@ -20,9 +20,12 @@ class IfcTypeDict(dict):
         return value
 
 
-typeDict = IfcTypeDict()
+ifc_path = "ifc_files\nmodel.ifc
+start = time.time()  # Culculate time to process
+print("Start!")
+print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 
-print(typeDict)
+typeDict = IfcTypeDict()
 
 assert typeDict["IfcWall"] == (
     'GlobalId',
@@ -41,35 +44,28 @@ edges = []
 
 ourLabel = 'test'
 
-f = ifcopenshell.open("tebuilding_original.ifc")
+f = ifcopenshell.open(ifc_path)
 
 for el in f:
-    print("\n", el.get_info())
+    if el.is_a() == "IfcOwnerHistory":
+        continue
     tid = el.id()
     cls = el.is_a()
     pairs = []
     keys = []
     try:
-        keys = [x for x in el.get_info() if x not in ["type", "id"]]
+        keys = [x for x in el.get_info() if x not in ["type", "id", "OwnerHistory"]]
     except RuntimeError:
         # we actually can't catch this, but try anyway
         pass
     for key in keys:
-        # print("\n",key)
         val = el[key]
-        val_type = type(val)
         if any(hasattr(val, "is_a") and val.is_a(thisTyp)
                for thisTyp in ["IfcBoolean", "IfcLabel", "IfcText", "IfcReal"]):
             val = val.wrappedValue
-            # print("patern_A", val)
-            # print(type(val))
         if type(val) not in (str, bool, float, int):
-            # print("patern_B", val)
-            # print(type(val))
             continue
         pairs.append((key, val))
-    
-    print("\n", pairs)
 
     nodes.append((tid, cls, pairs))
     for i in range(len(el)):
@@ -80,19 +76,11 @@ for el in f:
                 print("ID", tid, e, file=sys.stderr)
             continue
         if isinstance(el[i], ifcopenshell.entity_instance):
-            print("インスタンスチェック", el[i])
+            if el[i].is_a() == "IfcOwnerHistory":
+                continue
             if el[i].id() != 0:
                 edges.append((tid, el[i].id(), typeDict[cls][i]))
-                print("タイプの確認", typeDict[cls][i])
                 continue
-            else:
-                print(
-                    "attribute ",
-                    typeDict[cls][i],
-                    " of ",
-                    str(tid),
-                    " is zero",
-                    file=sys.stderr)
         try:
             iter(el[i])
         except TypeError:
@@ -108,57 +96,37 @@ if len(nodes) == 0:
 
 indexes = set(["nid", "cls"])
 
-# nobuho added
+print("List creat prosess done. Take for ", time.time() - start)
+print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 
-NodesCreates = []
-IndexCreates = []
-EdgesMatches = []
-EdgesCreates = []
-
-NodesCreates_txt = []
-
-####################
+# Initialize neo4j database
+graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
+graph.delete_all()
 
 for chunk in chunks2(nodes, 100):
+    one_node = None
     idx = 0
-    NodesCreates.append("CREATE ")
     for i in chunk:
         if i is None:
             continue
         nId, cls, pairs = i
-        if idx != 0:
-            print(",", end="")
         idx = idx + 1
-
-        pairsStr = ""
+        one_node = Node(cls, nid=nId)
         for k, v in pairs:
+            one_node[k] = v
             indexes.add(k)
-            pairsStr += ", " + k + ": " + json.dumps(v)
 
-        print(
-            "(a" +
-            str(idx) +
-            ":" +
-            ourLabel +
-            " { nid: " +
-            str(nId) +
-            ",cls: '" +
-            cls +
-            "'" +
-            pairsStr +
-            " })",
-            end="")
-    print(";")
+        graph.create(one_node)
 
-for idxName in indexes:
-    print("CREATE INDEX on :" + ourLabel + "(" + idxName + ");")
+print("Node creat prosess done. Take for ", time.time() - start)
+print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 
 for (nId1, nId2, relType) in edges:
-    print(
-        """ MATCH (a:{:s}),(b:{:s}) WHERE a.nid = {:d} AND b.nid = {:d} CREATE (a)-[r:{:s}]->(b) RETURN r; """.format(
-            ourLabel,
-            ourLabel,
+    graph.run(
+        "MATCH (a),(b) WHERE a.nid = {:d} AND b.nid = {:d} CREATE (a)-[r:{:s}]->(b)".format(
             nId1,
             nId2,
             relType))
 
+print("All done. Take for ", time.time() - start)
+print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
