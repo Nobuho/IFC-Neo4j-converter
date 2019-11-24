@@ -20,7 +20,7 @@ class IfcTypeDict(dict):
         return value
 
 
-ifc_path = "ifc_files\nmodel.ifc
+ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
 start = time.time()  # Culculate time to process
 print("Start!")
 print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
