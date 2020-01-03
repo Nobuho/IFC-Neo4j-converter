@@ -40,8 +40,6 @@ assert typeDict["IfcWall"] == (
 nodes = []
 edges = []
 
-# wallid = None
-
 ourLabel = 'test'
 
 f = IfcOpenShell.open(ifc_path)
