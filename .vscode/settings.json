@@ -11,5 +11,6 @@
     "python.venvFolders": [
         ".pyenv"
     ],
-    "python.pythonPath": ".pyenv\\Scripts\\python.exe"
+    "python.pythonPath": ".pyenv\\Scripts\\python.exe",
+    "git.ignoreLimitWarning": true
   }

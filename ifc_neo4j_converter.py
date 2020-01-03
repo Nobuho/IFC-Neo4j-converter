@@ -1,5 +1,5 @@
 import itertools
-import ifcopenshell
+import IfcOpenShell
 import sys
 from py2neo import Graph, Node
 import time
@@ -15,12 +15,12 @@ def chunks2(iterable, size, filler=None):
 
 class IfcTypeDict(dict):
     def __missing__(self, key):
-        value = self[key] = ifcopenshell.create_entity(
+        value = self[key] = IfcOpenShell.create_entity(
             key).wrapped_data.get_attribute_names()
         return value
 
 
-ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
+ifc_path = "ifc_files/191225_TE-Bld_zone_GEO.ifc"
 start = time.time()  # Culculate time to process
 print("Start!")
 print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
@@ -44,7 +44,7 @@ edges = []
 
 ourLabel = 'test'
 
-f = ifcopenshell.open(ifc_path)
+f = IfcOpenShell.open(ifc_path)
 
 for el in f:
     if el.is_a() == "IfcOwnerHistory":
@@ -63,6 +63,8 @@ for el in f:
         if any(hasattr(val, "is_a") and val.is_a(thisTyp)
                for thisTyp in ["IfcBoolean", "IfcLabel", "IfcText", "IfcReal"]):
             val = val.wrappedValue
+        if val and type(val) is tuple and type(val[0]) in (str, bool, float, int):
+            val = ",".join(str(x) for x in val)
         if type(val) not in (str, bool, float, int):
             continue
         pairs.append((key, val))
@@ -75,7 +77,7 @@ for el in f:
             if str(e) != "Entity not found":
                 print("ID", tid, e, file=sys.stderr)
             continue
-        if isinstance(el[i], ifcopenshell.entity_instance):
+        if isinstance(el[i], IfcOpenShell.entity_instance):
             if el[i].is_a() == "IfcOwnerHistory":
                 continue
             if el[i].id() != 0:
@@ -87,7 +89,7 @@ for el in f:
             continue
         destinations = [
             x.id() for x in el[i] if isinstance(
-                x, ifcopenshell.entity_instance)]
+                x, IfcOpenShell.entity_instance)]
         for connectedTo in destinations:
             edges.append((tid, connectedTo, typeDict[cls][i]))
 if len(nodes) == 0:
@@ -103,23 +105,25 @@ print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
 graph.delete_all()
 
-for chunk in chunks2(nodes, 100):
-    one_node = None
-    idx = 0
-    for i in chunk:
-        if i is None:
-            continue
-        nId, cls, pairs = i
-        idx = idx + 1
-        one_node = Node(cls, nid=nId)
-        for k, v in pairs:
-            one_node[k] = v
-            indexes.add(k)
-
-        graph.create(one_node)
+for node in nodes:
+    nId, cls, pairs = node
+    one_node = Node(cls, nid=nId)
+    for k, v in pairs:
+        one_node[k] = v
+    graph.create(one_node)
 
 print("Node creat prosess done. Take for ", time.time() - start)
 print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
+
+sd = json.dumps(ppp)
+sd = sd.replace("\"name\"", 'name')
+
+graph.run(
+    '''WITH json AS events
+UNWIND events AS event
+CREATE (Event {name: event.name})
+'''.replace("json", sd)
+)
 
 for (nId1, nId2, relType) in edges:
     graph.run(
