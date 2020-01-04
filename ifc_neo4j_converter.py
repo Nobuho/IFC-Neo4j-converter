@@ -1,9 +1,8 @@
-import itertools
 import IfcOpenShell
 import sys
 from py2neo import Graph, Node
 import time
-import json
+
 
 class IfcTypeDict(dict):
     def __missing__(self, key):
@@ -12,6 +11,7 @@ class IfcTypeDict(dict):
         return value
 
 
+# ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
 ifc_path = "ifc_files/191225_TE-Bld_zone_GEO.ifc"
 start = time.time()  # Culculate time to process
 print("Start!")
@@ -41,7 +41,7 @@ for el in f:
         continue
     tid = el.id()
     cls = el.is_a()
-    pairs = {}
+    pairs = []
     keys = []
     try:
         keys = [x for x in el.get_info() if x not in ["type", "id", "OwnerHistory"]]
@@ -71,6 +71,7 @@ for el in f:
             if el[i].is_a() == "IfcOwnerHistory":
                 continue
             if el[i].id() != 0:
+                # edges.append({"from":tid, "to":el[i].id(), "reltype":typeDict[cls][i]})
                 edges.append((tid, el[i].id(), typeDict[cls][i]))
                 continue
         try:
@@ -81,6 +82,7 @@ for el in f:
             x.id() for x in el[i] if isinstance(
                 x, IfcOpenShell.entity_instance)]
         for connectedTo in destinations:
+            # edges.append({"from": tid, "to": connectedTo, "reltype": typeDict[cls][i]})
             edges.append((tid, connectedTo, typeDict[cls][i]))
 
 if len(nodes) == 0:
@@ -94,9 +96,11 @@ print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
 graph.delete_all()
 
+graph.run("CREATE INDEX ON :IfcNode(ClassName, nid)")
+
 for node in nodes:
     nId, cls, pairs = node
-    one_node = Node(cls, nid=nId)
+    one_node = Node("IfcNode", ClassName=cls, nid=nId)
     for k, v in pairs:
         one_node[k] = v
     graph.create(one_node)
@@ -104,12 +108,25 @@ for node in nodes:
 print("Node creat prosess done. Take for ", time.time() - start)
 print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 
-# for (nId1, nId2, relType) in edges:
-#     graph.run(
-#         "MATCH (a),(b) WHERE a.nid = {:d} AND b.nid = {:d} CREATE (a)-[r:{:s}]->(b)".format(
-#             nId1,
-#             nId2,
-#             relType))
+# json = {"jsondoc": edges}
 
-# print("All done. Take for ", time.time() - start)
-# print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
+# query = """
+# WITH {json} AS document
+# UNWIND document.jsondoc AS jsondoc
+# UNWIND jsondoc AS row
+# MATCH (a),(b)
+# WHERE a.nid = row.to AND b.nid = row.from
+# CALL apoc.create.relationship(a,row.reltype,{},b) YIELD rel
+# RETURN *
+# """
+# graph.run(query, json=json)
+
+for (nId1, nId2, relType) in edges:
+    graph.run(
+        "MATCH (a),(b) WHERE a.nid = {:d} AND b.nid = {:d} CREATE (a)-[r:{:s}]->(b)".format(
+            nId1,
+            nId2,
+            relType))
+
+print("All done. Take for ", time.time() - start)
+print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
