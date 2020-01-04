@@ -128,5 +128,16 @@ for (nId1, nId2, relType) in edges:
             nId2,
             relType))
 
+query_rel = """
+MATCH (a)
+WHERE a.nid = {:d}
+MATCH (b)
+WHERE b.nid = {:d}
+CREATE (a)-[r:{:s}]->(b)
+"""
+
+for (nId1, nId2, relType) in edges:
+    graph.run(query_rel.format(nId1, nId2, relType))
+
 print("All done. Take for ", time.time() - start)
 print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
