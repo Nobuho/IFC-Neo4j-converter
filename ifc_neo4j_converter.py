@@ -3,15 +3,7 @@ import IfcOpenShell
 import sys
 from py2neo import Graph, Node
 import time
-
-
-def chunks2(iterable, size, filler=None):
-    it = itertools.chain(iterable, itertools.repeat(filler, size - 1))
-    chunk = tuple(itertools.islice(it, size))
-    while len(chunk) == size:
-        yield chunk
-        chunk = tuple(itertools.islice(it, size))
-
+import json
 
 class IfcTypeDict(dict):
     def __missing__(self, key):
@@ -49,7 +41,7 @@ for el in f:
         continue
     tid = el.id()
     cls = el.is_a()
-    pairs = []
+    pairs = {}
     keys = []
     try:
         keys = [x for x in el.get_info() if x not in ["type", "id", "OwnerHistory"]]
@@ -66,8 +58,8 @@ for el in f:
         if type(val) not in (str, bool, float, int):
             continue
         pairs.append((key, val))
-
     nodes.append((tid, cls, pairs))
+
     for i in range(len(el)):
         try:
             el[i]
@@ -90,11 +82,10 @@ for el in f:
                 x, IfcOpenShell.entity_instance)]
         for connectedTo in destinations:
             edges.append((tid, connectedTo, typeDict[cls][i]))
+
 if len(nodes) == 0:
     print("no nodes in file", file=sys.stderr)
     sys.exit(1)
-
-indexes = set(["nid", "cls"])
 
 print("List creat prosess done. Take for ", time.time() - start)
 print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
@@ -113,22 +104,12 @@ for node in nodes:
 print("Node creat prosess done. Take for ", time.time() - start)
 print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 
-sd = json.dumps(ppp)
-sd = sd.replace("\"name\"", 'name')
+# for (nId1, nId2, relType) in edges:
+#     graph.run(
+#         "MATCH (a),(b) WHERE a.nid = {:d} AND b.nid = {:d} CREATE (a)-[r:{:s}]->(b)".format(
+#             nId1,
+#             nId2,
+#             relType))
 
-graph.run(
-    '''WITH json AS events
-UNWIND events AS event
-CREATE (Event {name: event.name})
-'''.replace("json", sd)
-)
-
-for (nId1, nId2, relType) in edges:
-    graph.run(
-        "MATCH (a),(b) WHERE a.nid = {:d} AND b.nid = {:d} CREATE (a)-[r:{:s}]->(b)".format(
-            nId1,
-            nId2,
-            relType))
-
-print("All done. Take for ", time.time() - start)
-print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
+# print("All done. Take for ", time.time() - start)
+# print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))

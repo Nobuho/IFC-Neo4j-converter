@@ -1,0 +1,31 @@
+{
+    "categories": [
+        {
+            "name": "Index Crime", 
+            "sub_categories": [
+                {
+                    "code": "01A", 
+                    "description": "Homicide 1st & 2nd Degree"
+                }
+            ]
+        }, 
+        {
+            "name": "Non-Index Crime", 
+            "sub_categories": [
+                {
+                    "code": "01B", 
+                    "description": "Involuntary Manslaughter"
+                }
+            ]
+        }, 
+        {
+            "name": "Violent Crime", 
+            "sub_categories": [
+                {
+                    "code": "01A", 
+                    "description": "Homicide 1st & 2nd Degree"
+                }
+            ]
+        }
+    ]
+}
