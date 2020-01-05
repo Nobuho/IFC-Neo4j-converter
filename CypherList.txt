@@ -1,0 +1,84 @@
+## Sum of all space area
+MATCH
+(a:IfcSpace)
+<-[:RelatedObjects]-
+(b:IfcRelDefinesByProperties)
+-[:RelatingPropertyDefinition]->
+(c:IfcElementQuantity)
+-[:Quantities]->
+(d:IfcQuantityArea" {Name:"NetFloorArea"})
+RETURN sum(d.AreaValue)
+
+## List of space name and area
+MATCH
+(a:IfcSpace)
+<-[:RelatedObjects]-
+(b:IfcRelDefinesByProperties)
+-[:RelatingPropertyDefinition]->
+(c:IfcElementQuantity)
+-[:Quantities]->
+(d:IfcQuantityArea {Name:"NetFloorArea"})
+RETURN a.Name,d.AreaValue
+
+## Graph of paticular space and propertydefinityion
+MATCH
+(a:IfcSpace {Name:"応接室"})
+<-[:RelatedObjects]-
+(b:IfcRelDefinesByProperties)
+-[:RelatingPropertyDefinition]->
+(c:IfcPropertySet)
+RETURN a,b,c
+
+## List of space all properties
+MATCH
+(room:IfcSpace)
+<-[:RelatedObjects]-
+(b:IfcRelDefinesByProperties)
+-[:RelatingPropertyDefinition]->
+(propset:IfcPropertySet)
+-[:HasProperties]->
+(prop:IfcPropertySingleValue)
+RETURN room.Name,propset.Name,prop.Name,prop.NominalValue
+
+## Graph of touching space
+MATCH
+(a:IfcSpace {Name:"応接室"})
+<-[:RelatingSpace]-
+(b:IfcRelSpaceBoundary {InternalOrExternalBoundary:"INTERNAL"})
+-[:RelatedBuildingElement]->
+(c:IfcVirtualElement)
+<-[:RelatedBuildingElement]-
+(d:IfcRelSpaceBoundary {InternalOrExternalBoundary:"INTERNAL"})
+-[:RelatingSpace]->
+(e:IfcSpace)
+RETURN a,b,c,d,e
+
+## List of space storey
+MATCH
+(a:IfcSpace)
+<-[:RelatedObjects]-
+(b:IfcRelAggregates)
+-[:RelatingObject]->
+(c:IfcBuildingStorey)
+RETURN a.Name,c.Name
+
+## Graph of structure from space to project
+MATCH
+(a:IfcSpace)
+<-[:RelatedObjects]-
+(o:IfcRelAggregates)
+-[:RelatingObject]->
+(b:IfcBuildingStorey)
+<-[:RelatedObjects]-
+(p:IfcRelAggregates)
+-[:RelatingObject]->
+(c:IfcBuilding)
+<-[:RelatedObjects]-
+(q:IfcRelAggregates)
+-[:RelatingObject]->
+(d:IfcSite)
+<-[:RelatedObjects]-
+(r:IfcRelAggregates)
+-[:RelatingObject]->
+(e:IfcProject)
+RETURN a,b,c,d,e,o,p,q,r

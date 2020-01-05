@@ -32,8 +32,6 @@ assert typeDict["IfcWall"] == (
 nodes = []
 edges = []
 
-ourLabel = 'test'
-
 f = IfcOpenShell.open(ifc_path)
 
 for el in f:
@@ -96,8 +94,6 @@ print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
 graph.delete_all()
 
-graph.run("CREATE INDEX ON :IfcNode(ClassName, nid)")
-
 for node in nodes:
     nId, cls, pairs = node
     one_node = Node("IfcNode", ClassName=cls, nid=nId)
@@ -105,11 +101,26 @@ for node in nodes:
         one_node[k] = v
     graph.create(one_node)
 
+graph.run("CREATE INDEX ON :IfcNode(nid)")
+
 print("Node creat prosess done. Take for ", time.time() - start)
 print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 
-# json = {"jsondoc": edges}
+query_rel = """
+MATCH (a:IfcNode)
+WHERE a.nid = {:d}
+MATCH (b:IfcNode)
+WHERE b.nid = {:d}
+CREATE (a)-[:{:s}]->(b)
+"""
 
+for (nId1, nId2, relType) in edges:
+    graph.run(query_rel.format(nId1, nId2, relType))
+
+print("All done. Take for ", time.time() - start)
+print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
+
+# json = {"jsondoc": edges}
 # query = """
 # WITH {json} AS document
 # UNWIND document.jsondoc AS jsondoc
@@ -120,24 +131,3 @@ print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 # RETURN *
 # """
 # graph.run(query, json=json)
-
-for (nId1, nId2, relType) in edges:
-    graph.run(
-        "MATCH (a),(b) WHERE a.nid = {:d} AND b.nid = {:d} CREATE (a)-[r:{:s}]->(b)".format(
-            nId1,
-            nId2,
-            relType))
-
-query_rel = """
-MATCH (a)
-WHERE a.nid = {:d}
-MATCH (b)
-WHERE b.nid = {:d}
-CREATE (a)-[r:{:s}]->(b)
-"""
-
-for (nId1, nId2, relType) in edges:
-    graph.run(query_rel.format(nId1, nId2, relType))
-
-print("All done. Take for ", time.time() - start)
-print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
