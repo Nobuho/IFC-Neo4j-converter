@@ -16,7 +16,8 @@ start = time.time()  # Culculate time to process
 
 
 # ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
-ifc_path = "ifc_files/191225_TE-Bld_zone_GEO.ifc"
+# ifc_path = "ifc_files/191225_TE-Bld_zone_GEO.ifc"
+ifc_path = "ifc_files/191225_TE-Bld_arch_GEO.ifc"
 start = time.time()  # Culculate time to process
 print("Start!")
 print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
@@ -158,15 +159,3 @@ with open("log.text", mode="a") as f:
     f.write(log1 + "\n")
     f.write(log2 + "\n")
     f.write(log3 + "\n\n")
-
-# json = {"jsondoc": edges}
-# query = """
-# WITH {json} AS document
-# UNWIND document.jsondoc AS jsondoc
-# UNWIND jsondoc AS row
-# MATCH (a),(b)
-# WHERE a.nid = row.to AND b.nid = row.from
-# CALL apoc.create.relationship(a,row.reltype,{},b) YIELD rel
-# RETURN *
-# """
-# graph.run(query, json=json)
