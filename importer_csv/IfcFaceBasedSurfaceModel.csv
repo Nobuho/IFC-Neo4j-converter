@@ -1,2 +1,2 @@
-nid:ID,:LABEL
-2321,IfcFaceBasedSurfaceModel
+:LABEL,nid:ID
+IfcFaceBasedSurfaceModel,2321

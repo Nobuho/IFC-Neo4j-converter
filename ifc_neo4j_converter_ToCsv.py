@@ -1,6 +1,5 @@
 import IfcOpenShell
 import sys
-from py2neo import Graph, Node
 import time
 import csv
 
@@ -13,8 +12,6 @@ class IfcTypeDict(dict):
 
 
 start = time.time()  # Culculate time to process
-
-
 
 ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
 # ifc_path = "ifc_files/191225_TE-Bld_zone_GEO.ifc"
@@ -47,7 +44,7 @@ for el in f:
         continue
     tid = el.id()
     cls = el.is_a()
-    nod = {"nid:ID":tid, ":LABEL":cls}
+    nod = {"nid:ID": tid, ":LABEL": cls}
     keys = []
     try:
         keys = [x for x in el.get_info() if x not in ["type", "id", "OwnerHistory"]]
@@ -96,38 +93,33 @@ if len(nodes) == 0:
 
 cls_list = set([i[":LABEL"] for i in nodes])
 
+nodes_final = {}
+
 for s_cls in cls_list:
-    # ccc = []
-    # for i in nodes:
-    #     if i[":LABEL"] == s_cls:
-    #         ccc.append(i)
     ccc = [i for i in nodes if i[":LABEL"] == s_cls]
-    header = list(ccc[0].keys())
-    # for i in header:
-    #     # val_type = "".join(set([type(p[i]) for p in ccc]))
-    #     for p in ccc:
-    #         print(type(p[i]))
-    #     if i == "nid:ID":
+    nodes_final[s_cls] = ccc
+    
+    # for header in headers:
+    #     val_type = set([type(p[header]) for p in ccc])
+    #     if header == "nid:ID" or len(val_type) >= 2:
     #         continue
-    #     # if val_type == {"<class 'int'>"} or val_type == {"<class 'float'>"}:
-    #     #     print("NUM")
-    #     #     header[header.index(i)] += ":int"
-    rows = [[v if v is not None else "" for v in p.values()] for p in ccc] 
-
-    csv_path = "importer_csv/" + s_cls + ".csv"
-
-    with open(csv_path, 'w', newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-        writer.writerows(rows)
+    #     if val_type is {str} or val_type is  {float}:
+    #         print("NUM")
+    #         header[header.index(i)] += ":int"
+    # rows = [[v if v is not None else "" for v in p.values()] for p in ccc] 
+    # csv_path = "importer_csv/" + s_cls + ".csv"
+    # with open(csv_path, 'w', newline="") as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(header)
+    #     writer.writerows(rows)
 
 print("List creat prosess done. Take for ", round(time.time() - start))
 print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
 log2 = str(round(time.time() - start)) + "sec.\n" + str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " List creat prosess done"
 
 # Initialize neo4j database
-graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
-graph.delete_all()
+# graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
+# graph.delete_all()
 
 # for node in nodes:
 #     nId, cls, pairs = node
@@ -136,11 +128,9 @@ graph.delete_all()
 #         one_node[k] = v
 #     graph.create(one_node)
 
-print("Node creat prosess done. Take for ", round(time.time() - start))
-print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
-log2 = str(round(time.time() - start)) + "sec.\n" + str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " Node creat prosess done"
-
-
+# print("Node creat prosess done. Take for ", round(time.time() - start))
+# print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
+# log2 = str(round(time.time() - start)) + "sec.\n" + str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " Node creat prosess done"
 
 # query_rel = """
 # MATCH (a:{cls1})

@@ -1,2 +1,2 @@
-nid:ID,:LABEL,Name
-2,IfcOrganization,IfcOpenShell
+Name,:LABEL,nid:ID
+IfcOpenShell,IfcOrganization,2

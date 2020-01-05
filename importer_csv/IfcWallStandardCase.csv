@@ -1,5 +1,5 @@
-GlobalId,nid:ID,:LABEL,Name
-2tHa09veL10P9$ol9urWrT,34,IfcWallStandardCase,South wall
-2QWXTZZeTC6Bkze5LSo5bN,221,IfcWallStandardCase,North wall
-0_LDtxH_XBNOcVliPeWOvq,267,IfcWallStandardCase,East wall
-2DLuRGS9n41v3mwi$qFb98,280,IfcWallStandardCase,West wall
+GlobalId,Name,:LABEL,nid:ID
+2tHa09veL10P9$ol9urWrT,South wall,IfcWallStandardCase,34
+2QWXTZZeTC6Bkze5LSo5bN,North wall,IfcWallStandardCase,221
+0_LDtxH_XBNOcVliPeWOvq,East wall,IfcWallStandardCase,267
+2DLuRGS9n41v3mwi$qFb98,West wall,IfcWallStandardCase,280

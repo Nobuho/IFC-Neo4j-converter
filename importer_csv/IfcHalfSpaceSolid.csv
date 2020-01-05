@@ -1,3 +1,3 @@
-AgreementFlag,nid:ID,:LABEL
-False,243,IfcHalfSpaceSolid
-False,250,IfcHalfSpaceSolid
+AgreementFlag,:LABEL,nid:ID
+False,IfcHalfSpaceSolid,243
+False,IfcHalfSpaceSolid,250

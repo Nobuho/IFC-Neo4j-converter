@@ -1,2 +1,2 @@
-nid:ID,:LABEL
-9,IfcMeasureWithUnit
+:LABEL,nid:ID
+IfcMeasureWithUnit,9

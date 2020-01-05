@@ -1,2 +1,2 @@
-nid:ID,:LABEL
-2320,IfcOpenShell
+:LABEL,nid:ID
+IfcOpenShell,2320

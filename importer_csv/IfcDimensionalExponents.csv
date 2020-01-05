@@ -1,2 +1,2 @@
-ElectricCurrentExponent,ThermodynamicTemperatureExponent,:LABEL,LengthExponent,AmountOfSubstanceExponent,MassExponent,TimeExponent,nid:ID,LuminousIntensityExponent
-0,0,IfcDimensionalExponents,0,0,0,0,6,0
+LengthExponent,LuminousIntensityExponent,nid:ID,AmountOfSubstanceExponent,MassExponent,:LABEL,ElectricCurrentExponent,TimeExponent,ThermodynamicTemperatureExponent
+0,0,6,0,0,IfcDimensionalExponents,0,0,0

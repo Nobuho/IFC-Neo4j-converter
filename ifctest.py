@@ -6,6 +6,8 @@ import time
 import csv
 
 
+
+value = IfcOpenShell.create_entity("IfcSIUnit").wrapped_data.get_attribute_names()
 kkk = "nobuho"
 kkk += ":INT"
 

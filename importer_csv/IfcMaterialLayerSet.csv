@@ -1,2 +1,2 @@
-nid:ID,:LABEL,LayerSetName
-2331,IfcMaterialLayerSet,Wall
+LayerSetName,:LABEL,nid:ID
+Wall,IfcMaterialLayerSet,2331
