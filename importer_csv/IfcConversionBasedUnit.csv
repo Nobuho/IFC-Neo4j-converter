@@ -1,0 +1,2 @@
+UnitType,nid:ID,:LABEL,Name
+PLANEANGLEUNIT,10,IfcConversionBasedUnit,Degrees

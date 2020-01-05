@@ -2,6 +2,7 @@ import IfcOpenShell
 import sys
 from py2neo import Graph, Node
 import time
+import csv
 
 
 class IfcTypeDict(dict):
@@ -15,9 +16,9 @@ start = time.time()  # Culculate time to process
 
 
 
-# ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
+ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
 # ifc_path = "ifc_files/191225_TE-Bld_zone_GEO.ifc"
-ifc_path = "ifc_files/191225_TE-Bld_arch_GEO.ifc"
+# ifc_path = "ifc_files/191225_TE-Bld_arch_GEO.ifc"
 start = time.time()  # Culculate time to process
 print("Start!")
 print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
@@ -46,7 +47,7 @@ for el in f:
         continue
     tid = el.id()
     cls = el.is_a()
-    pairs = []
+    nod = {"nid:ID":tid, ":LABEL":cls}
     keys = []
     try:
         keys = [x for x in el.get_info() if x not in ["type", "id", "OwnerHistory"]]
@@ -62,8 +63,8 @@ for el in f:
             val = ",".join(str(x) for x in val)
         if type(val) not in (str, bool, float, int):
             continue
-        pairs.append((key, val))
-    nodes.append((tid, cls, pairs))
+        nod[key] = val
+    nodes.append(nod)
 
     for i in range(len(el)):
         try:
@@ -76,33 +77,49 @@ for el in f:
             if el[i].is_a() == "IfcOwnerHistory":
                 continue
             if el[i].id() != 0:
-                # edges.append({"from":tid, "to":el[i].id(), "reltype":typeDict[cls][i]})
-                # edges.append((tid, el[i].id(), typeDict[cls][i]))
-                edges.append((tid, cls, el[i].id(), el[i].is_a(), typeDict[cls][i]))
+                edges.append([tid, el[i].id(), typeDict[cls][i]])
                 continue
         try:
             iter(el[i])
         except TypeError:
             continue
-        # destinations = [
-        #     x.id() for x in el[i] if isinstance(
-        #         x, IfcOpenShell.entity_instance)]
-        # for connectedTo in destinations:
-        #     # edges.append({"from": tid, "to": connectedTo, "reltype": typeDict[cls][i]})
-        #     edges.append((tid, connectedTo, typeDict[cls][i]))
         destinations = [
             x.id() for x in el[i] if isinstance(
                 x, IfcOpenShell.entity_instance)]
-        destinations_cls = [
-            x.is_a() for x in el[i] if isinstance(
-                x, IfcOpenShell.entity_instance)]
-        for (connectedTo, connectedTo_cls) in zip(destinations, destinations_cls):
-            edges.append((tid, cls, connectedTo, connectedTo_cls, typeDict[cls][i]))
+        for connectedTo in destinations:
+            # edges.append({"from": tid, "to": connectedTo, "reltype": typeDict[cls][i]})
+            edges.append([tid, connectedTo, typeDict[cls][i]])
 
 if len(nodes) == 0:
     print("no nodes in file", file=sys.stderr)
     sys.exit(1)
 
+cls_list = set([i[":LABEL"] for i in nodes])
+
+for s_cls in cls_list:
+    # ccc = []
+    # for i in nodes:
+    #     if i[":LABEL"] == s_cls:
+    #         ccc.append(i)
+    ccc = [i for i in nodes if i[":LABEL"] == s_cls]
+    header = list(ccc[0].keys())
+    # for i in header:
+    #     # val_type = "".join(set([type(p[i]) for p in ccc]))
+    #     for p in ccc:
+    #         print(type(p[i]))
+    #     if i == "nid:ID":
+    #         continue
+    #     # if val_type == {"<class 'int'>"} or val_type == {"<class 'float'>"}:
+    #     #     print("NUM")
+    #     #     header[header.index(i)] += ":int"
+    rows = [[v if v is not None else "" for v in p.values()] for p in ccc] 
+
+    csv_path = "importer_csv/" + s_cls + ".csv"
+
+    with open(csv_path, 'w', newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        writer.writerows(rows)
 
 print("List creat prosess done. Take for ", round(time.time() - start))
 print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
@@ -112,50 +129,36 @@ log2 = str(round(time.time() - start)) + "sec.\n" + str(time.strftime("%Y/%m/%d 
 graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
 graph.delete_all()
 
-for node in nodes:
-    nId, cls, pairs = node
-    one_node = Node(cls, nid=nId)
-    for k, v in pairs:
-        one_node[k] = v
-    graph.create(one_node)
-
-# Index create process
-# ifc_classes = set([i[2] for i in edges])
-# for cl in ifc_classes:
-#     graph.run("CREATE INDEX ON :{:s}(nid)".format(cl))
+# for node in nodes:
+#     nId, cls, pairs = node
+#     one_node = Node(cls, nid=nId)
+#     for k, v in pairs:
+#         one_node[k] = v
+#     graph.create(one_node)
 
 print("Node creat prosess done. Take for ", round(time.time() - start))
 print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
 log2 = str(round(time.time() - start)) + "sec.\n" + str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " Node creat prosess done"
 
+
+
 # query_rel = """
-# MATCH (a)
-# WHERE a.nid = {:d}
-# MATCH (b)
-# WHERE b.nid = {:d}
-# CREATE (a)-[:{:s}]->(b)
+# MATCH (a:{cls1})
+# WHERE a.nid = {id1}
+# MATCH (b:{cls2})
+# WHERE b.nid = {id2}
+# CREATE (a)-[:{relType}]->(b)
 # """
 
-# for (nId1, nId2, relType) in edges:
-#     graph.run(query_rel.format(nId1, nId2, relType))
+# for (id1, cls1, id2, cls2, relType) in edges:
+#     graph.run(query_rel.format(cls1=cls1, cls2=cls2, id1=id1, id2=id2, relType=relType))
+# print("All done. Take for ", round(time.time() - start))
+# print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
+# log3 = str(round(time.time() - start)) + "sec.\n" + str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " All done"
 
-query_rel = """
-MATCH (a:{cls1})
-WHERE a.nid = {id1}
-MATCH (b:{cls2})
-WHERE b.nid = {id2}
-CREATE (a)-[:{relType}]->(b)
-"""
-
-for (id1, cls1, id2, cls2, relType) in edges:
-    graph.run(query_rel.format(cls1=cls1, cls2=cls2, id1=id1, id2=id2, relType=relType))
-print("All done. Take for ", round(time.time() - start))
-print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
-log3 = str(round(time.time() - start)) + "sec.\n" + str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " All done"
-
-with open("log.text", mode="a") as f:
-    f.write(ifc_path + "\n" )
-    f.write("Nodes_" + str(len(nodes)) + " ,Edges_" + str(len(edges)) + "\n")
-    f.write(log1 + "\n")
-    f.write(log2 + "\n")
-    f.write(log3 + "\n\n")
+# with open("log.text", mode="a") as f:
+#     f.write(ifc_path + "\n" )
+#     f.write("Nodes_" + str(len(nodes)) + " ,Edges_" + str(len(edges)) + "\n")
+#     f.write(log1 + "\n")
+#     f.write(log2 + "\n")
+#     f.write(log3 + "\n\n")

@@ -1,0 +1,2 @@
+ApplicationIdentifier,nid:ID,:LABEL,ApplicationFullName,Version
+IfcOpenShell,4,IfcApplication,IfcOpenShell,0.5.0-dev

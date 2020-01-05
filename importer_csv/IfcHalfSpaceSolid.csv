@@ -1,0 +1,3 @@
+AgreementFlag,nid:ID,:LABEL
+False,243,IfcHalfSpaceSolid
+False,250,IfcHalfSpaceSolid

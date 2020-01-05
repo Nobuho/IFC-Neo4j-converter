@@ -1,0 +1,2 @@
+DirectionSense,nid:ID,:LABEL,OffsetFromReferenceLine,LayerSetDirection
+POSITIVE,2332,IfcMaterialLayerSetUsage,-180.0,AXIS2

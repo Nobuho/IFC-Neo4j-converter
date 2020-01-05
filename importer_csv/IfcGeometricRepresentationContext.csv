@@ -1,0 +1,3 @@
+CoordinateSpaceDimension,Precision,nid:ID,:LABEL,ContextType
+3,1e-05,41,IfcGeometricRepresentationContext,Model
+3,1e-05,47,IfcGeometricRepresentationContext,Plan
