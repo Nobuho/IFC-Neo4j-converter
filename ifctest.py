@@ -1,25 +1,30 @@
 import itertools
-import IfcOpenShell
-import sys
-from py2neo import Graph, Node
-import time
-import csv
+# import IfcOpenShell
+# import sys
+# from py2neo import Graph, Node
+# import time
+# import csv
+import copy
 
+list1 = [1, 2, 3]
+list2 = copy.copy(list1)
+list1.append(4)
+print(list1)
+print(list2)
 
+dict1 = {'red': 1, 'blue': 2, 'yellow': 30, 'white': 4, 'black': 5}
+dict2 = {'red': 43, 'blue': 52, 'yellow': 30, 'white': 54}
+dict3 = {'red': 14, 'blue': 23, 'yellow': 30, 'white': 64, 'black': 85}
+dict4 = {'red': 43, 'blue': 52, 'yellow': 30, 'white': 54}
+dicts = [dict1, dict2, dict3, dict4]
 
-value = IfcOpenShell.create_entity("IfcSIUnit").wrapped_data.get_attribute_names()
-kkk = "nobuho"
-kkk += ":INT"
+def dict_key_setter(dict_list):
+    dict_keys = set(itertools.chain.from_iterable([i.keys() for i in dict_list]))
+    for d in dict_list:
+        for k in dict_keys:
+            d.setdefault(k, "")
+    return dict_list
 
-ppp = [[2, 4, "", 5],["","","","",5555]]
+aaa = dict_key_setter(dicts)
 
-with open("kkk.csv", 'w') as f:
-        writer = csv.writer(f)
-        writer.writerows(ppp)
-
-graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
-# graph.delete_all()
-
-graph.run("CREATE(:User{name:{name1}})-[:FRIEND]->(:User{name:{name2}})", {"name1": "kokijiu", "name2": "lololo"})
-
-a = 1
+print(dict_list)

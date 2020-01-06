@@ -1,0 +1,145 @@
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/05 15:18:26 Start 
+23sec.
+2020/01/05 15:18:49 Node creat prosess done
+78sec.
+2020/01/05 15:19:44 All done
+
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/05 15:30:48 Start 
+20sec.
+2020/01/05 15:31:08 Node creat prosess done
+80sec.
+2020/01/05 15:32:08 All done
+
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/05 15:53:35 Start 
+28sec.
+2020/01/05 15:54:02 Node creat prosess done
+69sec.
+2020/01/05 15:54:44 All done
+
+ifc_files/191225_TE-Bld_zone_GEO.ifc
+Nodes_56976 ,Edges_60007
+2020/01/05 15:57:28 Start 
+403sec.
+2020/01/05 16:04:11 Node creat prosess done
+1604sec.
+2020/01/05 16:24:12 All done
+
+ifc_files/191225_TE-Bld_zone_GEO.ifc
+Nodes_56976 ,Edges_60007
+2020/01/06 13:19:12 Start 
+494sec.
+2020/01/06 13:27:26 Node creat prosess done
+2489sec.
+2020/01/06 14:00:41 All done
+
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 18:42:33 Start 
+59sec.
+2020/01/06 18:43:32 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 18:59:21 Start 
+346sec.
+2020/01/06 19:05:07 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 19:09:44 Start 
+112sec.
+2020/01/06 19:11:36 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 19:21:22 Start 
+2sec.
+2020/01/06 19:21:23 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 20:21:54 Start 
+327sec.
+2020/01/06 20:27:21 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 20:45:16 Start 
+2sec.
+2020/01/06 20:45:18 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 21:19:34 Start 
+2sec.
+2020/01/06 21:19:37 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 21:20:23 Start 
+2sec.
+2020/01/06 21:20:25 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 21:23:26 Start 
+2sec.
+2020/01/06 21:23:27 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 21:25:38 Start 
+2sec.
+2020/01/06 21:25:40 List creat prosess done
+ifc_files/191225_TE-Bld_zone_GEO.ifc
+Nodes_56976 ,Edges_60007
+2020/01/06 21:25:56 Start 
+47sec.
+2020/01/06 21:26:43 List creat prosess done
+ifc_files/191225_TE-Bld_zone_GEO.ifc
+Nodes_56976 ,Edges_60007
+2020/01/06 21:28:41 Start 
+47sec.
+2020/01/06 21:29:27 List creat prosess done
+ifc_files/191225_TE-Bld_zone_GEO.ifc
+Nodes_56976 ,Edges_60007
+2020/01/06 21:34:35 Start 
+46sec.
+2020/01/06 21:35:21 List creat prosess done
+ifc_files/191225_TE-Bld_zone_GEO.ifc
+Nodes_56976 ,Edges_60007
+2020/01/06 21:35:36 Start 
+47sec.
+2020/01/06 21:36:23 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 21:51:44 Start 
+6sec.
+2020/01/06 21:51:51 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 21:51:56 Start 
+2sec.
+2020/01/06 21:51:58 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/01/06 21:59:02 Start 
+2sec.
+2020/01/06 21:59:04 List creat prosess done
+ifc_files/191225_TE-Bld_zone_GEO.ifc
+Nodes_56976 ,Edges_60007
+2020/01/06 21:59:32 Start 
+46sec.
+2020/01/06 22:00:18 List creat prosess done
+ifc_files/191225_TE-Bld_zone_GEO.ifc
+Nodes_56976 ,Edges_60007
+2020/01/06 22:08:40 Start 
+49sec.
+2020/01/06 22:09:29 List creat prosess done
+ifc_files/191225_TE-Bld_zone_GEO.ifc
+Nodes_56976 ,Edges_60007
+2020/01/06 22:10:44 Start 
+49sec.
+2020/01/06 22:11:32 List creat prosess done
+ifc_files/191225_TE-Bld_arch_GEO.ifc
+Nodes_933787 ,Edges_1319665
+2020/01/06 22:13:57 Start 
+727sec.
+2020/01/06 22:26:04 List creat prosess done

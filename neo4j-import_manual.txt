@@ -1,0 +1,2 @@
+run
+neo4j-admin import --f=neo4j-import_setting.txt
