@@ -16,8 +16,8 @@ start = time.time()  # Culculate time to process
 
 
 # ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
-# ifc_path = "ifc_files/191225_TE-Bld_zone_GEO.ifc"
-ifc_path = "ifc_files/191225_TE-Bld_arch_GEO.ifc"
+ifc_path = "ifc_files/191225_TE-Bld_zone_GEO.ifc"
+# ifc_path = "ifc_files/191225_TE-Bld_arch_GEO.ifc"
 start = time.time()  # Culculate time to process
 print("Start!")
 print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
