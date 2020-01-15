@@ -6,7 +6,7 @@ MATCH
 -[:RelatingPropertyDefinition]->
 (c:IfcElementQuantity)
 -[:Quantities]->
-(d:IfcQuantityArea" {Name:"NetFloorArea"})
+(d:IfcQuantityArea {Name:"NetFloorArea"})
 RETURN sum(d.AreaValue)
 
 ## List of space name and area
