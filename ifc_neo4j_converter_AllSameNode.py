@@ -12,7 +12,7 @@ class IfcTypeDict(dict):
 
 
 # ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
-ifc_path = "ifc_files/191225_TE-Bld_zone_GEO.ifc"
+ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
 start = time.time()  # Culculate time to process
 print("Start!")
 print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
@@ -119,15 +119,3 @@ for (nId1, nId2, relType) in edges:
 
 print("All done. Take for ", time.time() - start)
 print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
-
-# json = {"jsondoc": edges}
-# query = """
-# WITH {json} AS document
-# UNWIND document.jsondoc AS jsondoc
-# UNWIND jsondoc AS row
-# MATCH (a),(b)
-# WHERE a.nid = row.to AND b.nid = row.from
-# CALL apoc.create.relationship(a,row.reltype,{},b) YIELD rel
-# RETURN *
-# """
-# graph.run(query, json=json)
