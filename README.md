@@ -5,7 +5,6 @@ converting ifc model to neo4j graph datadbase
 ## Reference
 
 ifc2cypher.py byysangkok
-
 https://gist.github.com/ysangkok/8aa7ab1c3207536518f3c3bf5f664880
 
 ## How it works
@@ -27,6 +26,7 @@ https://gist.github.com/ysangkok/8aa7ab1c3207536518f3c3bf5f664880
 ### library
 
 - IfcOpenShell-python 0.6.0 latest for python 3.8 64bit Windows
+http://ifcopenshell.org/python
 - py2neo
 
 ### Graph database
