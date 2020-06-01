@@ -22,13 +22,11 @@ https://gist.github.com/ysangkok/8aa7ab1c3207536518f3c3bf5f664880
 
 ### Python ver
 
-- Python 3.5.0
-
-    *ifcopenshell doesn't work with newer version of python.
+- Python 3.8.0
 
 ### library
 
-- ifcopenshell
+- IfcOpenShell-python 0.6.0 latest for python 3.8 64bit Windows
 - py2neo
 
 ### Graph database
