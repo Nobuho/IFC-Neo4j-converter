@@ -1,45 +1,29 @@
-import IfcOpenShell
+import ifcopenshell
 import sys
 from py2neo import Graph, Node
 import time
 
 
-class IfcTypeDict(dict):
-    def __missing__(self, key):
-        value = self[key] = IfcOpenShell.create_entity(
-            key).wrapped_data.get_attribute_names()
-        return value
+def typeDict(key):
+    f = ifcopenshell.file()
+    value = f.create_entity(key).wrapped_data.get_attribute_names()
+    return value
 
 
 start = time.time()  # Culculate time to process
 
 
-
-# ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
-ifc_path = "ifc_files/191225_TE-Bld_zone_GEO.ifc"
-# ifc_path = "ifc_files/191225_TE-Bld_arch_GEO.ifc"
+ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
 start = time.time()  # Culculate time to process
 print("Start!")
 print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
 log1 = str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " Start "
 
 
-typeDict = IfcTypeDict()
-
-assert typeDict["IfcWall"] == (
-    'GlobalId',
-    'OwnerHistory',
-    'Name',
-    'Description',
-    'ObjectType',
-    'ObjectPlacement',
-    'Representation',
-    'Tag')
-
 nodes = []
 edges = []
 
-f = IfcOpenShell.open(ifc_path)
+f = ifcopenshell.open(ifc_path)
 
 for el in f:
     if el.is_a() == "IfcOwnerHistory":
@@ -54,7 +38,7 @@ for el in f:
         # we actually can't catch this, but try anyway
         pass
     for key in keys:
-        val = el[key]
+        val = el.get_info()[key]
         if any(hasattr(val, "is_a") and val.is_a(thisTyp)
                for thisTyp in ["IfcBoolean", "IfcLabel", "IfcText", "IfcReal"]):
             val = val.wrappedValue
@@ -72,13 +56,13 @@ for el in f:
             if str(e) != "Entity not found":
                 print("ID", tid, e, file=sys.stderr)
             continue
-        if isinstance(el[i], IfcOpenShell.entity_instance):
+        if isinstance(el[i], ifcopenshell.entity_instance):
             if el[i].is_a() == "IfcOwnerHistory":
                 continue
             if el[i].id() != 0:
-                # edges.append({"from":tid, "to":el[i].id(), "reltype":typeDict[cls][i]})
-                # edges.append((tid, el[i].id(), typeDict[cls][i]))
-                edges.append((tid, cls, el[i].id(), el[i].is_a(), typeDict[cls][i]))
+                # edges.append({"from":tid, "to":el[i].id(), "reltype":typeDict(cls)[i]})
+                # edges.append((tid, el[i].id(), typeDict(cls)[i]))
+                edges.append((tid, cls, el[i].id(), el[i].is_a(), typeDict(cls)[i]))
                 continue
         try:
             iter(el[i])
@@ -86,18 +70,18 @@ for el in f:
             continue
         # destinations = [
         #     x.id() for x in el[i] if isinstance(
-        #         x, IfcOpenShell.entity_instance)]
+        #         x, ifcopenshell.entity_instance)]
         # for connectedTo in destinations:
-        #     # edges.append({"from": tid, "to": connectedTo, "reltype": typeDict[cls][i]})
-        #     edges.append((tid, connectedTo, typeDict[cls][i]))
+        #     # edges.append({"from": tid, "to": connectedTo, "reltype": typeDict(cls)[i]})
+        #     edges.append((tid, connectedTo, typeDict(cls)[i]))
         destinations = [
             x.id() for x in el[i] if isinstance(
-                x, IfcOpenShell.entity_instance)]
+                x, ifcopenshell.entity_instance)]
         destinations_cls = [
             x.is_a() for x in el[i] if isinstance(
-                x, IfcOpenShell.entity_instance)]
+                x, ifcopenshell.entity_instance)]
         for (connectedTo, connectedTo_cls) in zip(destinations, destinations_cls):
-            edges.append((tid, cls, connectedTo, connectedTo_cls, typeDict[cls][i]))
+            edges.append((tid, cls, connectedTo, connectedTo_cls, typeDict(cls)[i]))
 
 if len(nodes) == 0:
     print("no nodes in file", file=sys.stderr)
@@ -106,7 +90,8 @@ if len(nodes) == 0:
 
 print("List creat prosess done. Take for ", round(time.time() - start))
 print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
-log2 = str(round(time.time() - start)) + "sec.\n" + str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " List creat prosess done"
+log2 = str(round(time.time() - start)) + "sec.\n" + \
+    str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " List creat prosess done"
 
 # Initialize neo4j database
 graph = Graph(auth=('neo4j', 'Neo4j'))  # http://localhost:7474
@@ -126,7 +111,8 @@ for node in nodes:
 
 print("Node creat prosess done. Take for ", round(time.time() - start))
 print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
-log2 = str(round(time.time() - start)) + "sec.\n" + str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " Node creat prosess done"
+log2 = str(round(time.time() - start)) + "sec.\n" + \
+    str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " Node creat prosess done"
 
 # query_rel = """
 # MATCH (a)
@@ -151,10 +137,11 @@ for (id1, cls1, id2, cls2, relType) in edges:
     graph.run(query_rel.format(cls1=cls1, cls2=cls2, id1=id1, id2=id2, relType=relType))
 print("All done. Take for ", round(time.time() - start))
 print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
-log3 = str(round(time.time() - start)) + "sec.\n" + str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " All done"
+log3 = str(round(time.time() - start)) + "sec.\n" + \
+    str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " All done"
 
 with open("log.text", mode="a") as f:
-    f.write(ifc_path + "\n" )
+    f.write(ifc_path + "\n")
     f.write("Nodes_" + str(len(nodes)) + " ,Edges_" + str(len(edges)) + "\n")
     f.write(log1 + "\n")
     f.write(log2 + "\n")

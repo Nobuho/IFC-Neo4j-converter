@@ -143,3 +143,8 @@ Nodes_933787 ,Edges_1319665
 2020/01/06 22:13:57 Start 
 727sec.
 2020/01/06 22:26:04 List creat prosess done
+ifc_files/IfcOpenHouse_original.ifc
+Nodes_2870 ,Edges_4426
+2020/06/02 01:14:39 Start 
+3sec.
+2020/06/02 01:14:42 List creat prosess done

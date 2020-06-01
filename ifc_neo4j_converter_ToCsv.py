@@ -1,4 +1,4 @@
-import IfcOpenShell
+import ifcopenshell
 import sys
 import time
 import csv
@@ -6,11 +6,11 @@ import itertools
 import copy
 
 
-class IfcTypeDict(dict):
-    def __missing__(self, key):
-        value = self[key] = IfcOpenShell.create_entity(
-            key).wrapped_data.get_attribute_names()
-        return value
+def typeDict(key):
+    f = ifcopenshell.file()
+    value = f.create_entity(key).wrapped_data.get_attribute_names()
+    return value
+
 
 def dict_key_setter(dict_list):
     dict_keys = list(set(itertools.chain.from_iterable([i.keys() for i in dict_list])))
@@ -18,6 +18,7 @@ def dict_key_setter(dict_list):
         for k in dict_keys:
             d.setdefault(k, None)
     return dict_list, dict_keys
+
 
 def change_dict_key(d, old_key, new_key):
     if old_key in d:
@@ -35,31 +36,20 @@ log1 = str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " 
 
 # ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
 # ifc_path = "ifc_files/191225_TE-Bld_zone_GEO.ifc"
-ifc_path = "ifc_files/191225_TE-Bld_arch_GEO.ifc"
+ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
 
 ####################################################
 # neo4j root path
 ####################################################
 
-path_ne4j_root = "D:/neo4j"
+path_ne4j_root = "C:/neo4j"
 
 ####################################################
 # Nodes and Edges list create
 ####################################################
-typeDict = IfcTypeDict()
-assert typeDict["IfcWall"] == (
-    'GlobalId',
-    'OwnerHistory',
-    'Name',
-    'Description',
-    'ObjectType',
-    'ObjectPlacement',
-    'Representation',
-    'Tag')
-
 nodes = []
 edges = []
-f = IfcOpenShell.open(ifc_path)
+f = ifcopenshell.open(ifc_path)
 
 for el in f:
     if el.is_a() == "IfcOwnerHistory":
@@ -74,7 +64,7 @@ for el in f:
         # we actually can't catch this, but try anyway
         pass
     for key in keys:
-        val = el[key]
+        val = el.get_info()[key]
         if any(hasattr(val, "is_a") and val.is_a(thisTyp)
                for thisTyp in ["IfcBoolean", "IfcLabel", "IfcText", "IfcReal"]):
             val = val.wrappedValue
@@ -92,11 +82,11 @@ for el in f:
             if str(e) != "Entity not found":
                 print("ID", tid, e, file=sys.stderr)
             continue
-        if isinstance(el[i], IfcOpenShell.entity_instance):
+        if isinstance(el[i], ifcopenshell.entity_instance):
             if el[i].is_a() == "IfcOwnerHistory":
                 continue
             if el[i].id() != 0:
-                edges.append([tid, el[i].id(), typeDict[cls][i]])
+                edges.append([tid, el[i].id(), typeDict(cls)[i]])
                 continue
         try:
             iter(el[i])
@@ -104,12 +94,12 @@ for el in f:
             continue
         destinations = [
             x.id() for x in el[i] if isinstance(
-                x, IfcOpenShell.entity_instance)]
+                x, ifcopenshell.entity_instance)]
         for connectedTo in destinations:
             # i dont know why, but "trim" reltype sometimes have connectedto"0"
             if connectedTo == 0:
                 continue
-            edges.append([tid, connectedTo, typeDict[cls][i]])
+            edges.append([tid, connectedTo, typeDict(cls)[i]])
 
 if len(nodes) == 0:
     print("no nodes in file", file=sys.stderr)
@@ -133,13 +123,17 @@ for s_cls in cls_list:
         if header == "Id":
             headers[i] = "ifcID"
             print("id!!!!!!!!")
-        if any(val_type == s for s in [{"<class 'int'>"}, {"<class 'float'>"}, {"<class 'int'>","<class 'NoneType'>"}, {"<class 'float'>","<class 'NoneType'>"}]):
+        if any(
+            val_type == s for s in [
+                {"<class 'int'>"}, {"<class 'float'>"}, {
+                    "<class 'int'>", "<class 'NoneType'>"}, {
+                "<class 'float'>", "<class 'NoneType'>"}]):
             headers[i] += ":float"
     for d in dicts:
         for n in range(len(headers)):
             change_dict_key(d, headers_raw[n], headers[n])
             dicts_mod.append(d)
-    rows = [[v if v is not None else "" for v in p.values()] for p in dicts] 
+    rows = [[v if v is not None else "" for v in p.values()] for p in dicts]
     csv_path = path_ne4j_root + "/bin/importer_csv/" + s_cls + ".csv"
     with open(csv_path, 'w', newline="", encoding='utf_8_sig') as f:
         writer = csv.DictWriter(f, fieldnames=headers)
@@ -170,10 +164,11 @@ with open(path_ne4j_root + "/bin/neo4j-import_setting.txt", mode="w") as f:
 
 print("List creat prosess done. Take for ", round(time.time() - start))
 print(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime())))
-log2 = str(round(time.time() - start)) + "sec.\n" + str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " List creat prosess done"
+log2 = str(round(time.time() - start)) + "sec.\n" + \
+    str(time.strftime("%Y/%m/%d %H:%M:%S", time.strptime(time.ctime()))) + " List creat prosess done"
 
 with open("log.txt", mode="a") as f:
-    f.write(ifc_path + "\n" )
+    f.write(ifc_path + "\n")
     f.write("Nodes_" + str(len(nodes)) + " ,Edges_" + str(len(edges)) + "\n")
     f.write(log1 + "\n")
     f.write(log2 + "\n")

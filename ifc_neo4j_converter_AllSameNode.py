@@ -45,7 +45,6 @@ for el in f:
     nodes.append((tid, cls, pairs))
 
     for i in range(len(el)):
-        ccc = el[i]
         try:
             el[i]
         except RuntimeError as e:
