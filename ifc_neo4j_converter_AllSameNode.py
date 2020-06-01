@@ -1,38 +1,24 @@
-import IfcOpenShell
+import ifcopenshell
 import sys
 from py2neo import Graph, Node
 import time
 
 
-class IfcTypeDict(dict):
-    def __missing__(self, key):
-        value = self[key] = IfcOpenShell.create_entity(
-            key).wrapped_data.get_attribute_names()
-        return value
+def typeDict(key):
+    f = ifcopenshell.file()
+    value = f.create_entity(key).wrapped_data.get_attribute_names()
+    return value
 
 
-# ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
 ifc_path = "ifc_files/IfcOpenHouse_original.ifc"
 start = time.time()  # Culculate time to process
 print("Start!")
 print(time.strftime("%Y/%m/%d %H:%M", time.strptime(time.ctime())))
 
-typeDict = IfcTypeDict()
-
-assert typeDict["IfcWall"] == (
-    'GlobalId',
-    'OwnerHistory',
-    'Name',
-    'Description',
-    'ObjectType',
-    'ObjectPlacement',
-    'Representation',
-    'Tag')
-
 nodes = []
 edges = []
 
-f = IfcOpenShell.open(ifc_path)
+f = ifcopenshell.open(ifc_path)
 
 for el in f:
     if el.is_a() == "IfcOwnerHistory":
@@ -47,7 +33,7 @@ for el in f:
         # we actually can't catch this, but try anyway
         pass
     for key in keys:
-        val = el[key]
+        val = el.get_info()[key]
         if any(hasattr(val, "is_a") and val.is_a(thisTyp)
                for thisTyp in ["IfcBoolean", "IfcLabel", "IfcText", "IfcReal"]):
             val = val.wrappedValue
@@ -59,18 +45,18 @@ for el in f:
     nodes.append((tid, cls, pairs))
 
     for i in range(len(el)):
+        ccc = el[i]
         try:
             el[i]
         except RuntimeError as e:
             if str(e) != "Entity not found":
                 print("ID", tid, e, file=sys.stderr)
             continue
-        if isinstance(el[i], IfcOpenShell.entity_instance):
+        if isinstance(el[i], ifcopenshell.entity_instance):
             if el[i].is_a() == "IfcOwnerHistory":
                 continue
             if el[i].id() != 0:
-                # edges.append({"from":tid, "to":el[i].id(), "reltype":typeDict[cls][i]})
-                edges.append((tid, el[i].id(), typeDict[cls][i]))
+                edges.append((tid, el[i].id(), typeDict(cls)[i]))
                 continue
         try:
             iter(el[i])
@@ -78,10 +64,9 @@ for el in f:
             continue
         destinations = [
             x.id() for x in el[i] if isinstance(
-                x, IfcOpenShell.entity_instance)]
+                x, ifcopenshell.entity_instance)]
         for connectedTo in destinations:
-            # edges.append({"from": tid, "to": connectedTo, "reltype": typeDict[cls][i]})
-            edges.append((tid, connectedTo, typeDict[cls][i]))
+            edges.append((tid, connectedTo, typeDict(cls)[i]))
 
 if len(nodes) == 0:
     print("no nodes in file", file=sys.stderr)
